@@ -3,10 +3,10 @@ package com.thalesgroup.datastorage.dojo;
 import com.thalesgroup.datastorage.dojo.config.KafkaConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 
-public class Main {
+public class Main2 {
     public static void main(String[] args) {
-        KafkaProducer<String, String> kp = new KafkaProducer<String, String>(KafkaConfig.getProducerConfig("userGenerator"));
-        UserGenerator ug = new UserGenerator(kp);
+        KafkaProducer<String, String> kp = new KafkaProducer<String, String>(KafkaConfig.getProducerConfig("messageGenerator"));
+        MessageGenerator ug = new MessageGenerator(kp);
         Long timeBefore = System.nanoTime();
         ug.generate(10000000);
         Long timeAfter = System.nanoTime();

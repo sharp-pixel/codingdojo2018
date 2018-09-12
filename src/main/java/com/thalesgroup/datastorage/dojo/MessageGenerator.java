@@ -8,12 +8,13 @@ import org.apache.kafka.common.KafkaException;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.UUID;
 
-public class UserGenerator implements Closeable {
+public class MessageGenerator implements Closeable {
     Producer<String, String> producer;
-    final String topicName = "users";
+    final String topicName = "events";
 
-    public UserGenerator(Producer<String, String> producer) {
+    public MessageGenerator(Producer<String, String> producer) {
         this.producer = producer;
     }
 
@@ -21,8 +22,9 @@ public class UserGenerator implements Closeable {
         producer.initTransactions();
         try {
             producer.beginTransaction();
-            for (int i = 0; i < n; i++) {
-                ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>(topicName, i + "", NameGenerator.getName());
+            // for (int i = n - 1; i >= 0; i--) {
+            for (int i = n; i-- > 0;) {
+                ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>(topicName, i + "", UUID.randomUUID().toString());
                 producer.send(producerRecord, new Callback() {
                     public void onCompletion(RecordMetadata recordMetadata, Exception e) {
                         if (e != null) {
