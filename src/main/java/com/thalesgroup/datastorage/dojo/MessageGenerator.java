@@ -25,11 +25,9 @@ public class MessageGenerator implements Closeable {
             // for (int i = n - 1; i >= 0; i--) {
             for (int i = n; i-- > 0;) {
                 ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>(topicName, i + "", UUID.randomUUID().toString());
-                producer.send(producerRecord, new Callback() {
-                    public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                        if (e != null) {
-                            System.out.println("Error " + recordMetadata.topic());
-                        }
+                producer.send(producerRecord, (recordMetadata, e) -> {
+                    if (e != null) {
+                        System.out.println("Error " + recordMetadata.topic());
                     }
                 });
             }

@@ -1,6 +1,7 @@
 {
   "type" : "record",
-  "name" : "users",
+  "name" : "Users",
+  "namespace": "com.thalesgroup.datastorage.dojo",
   "fields" : [ {
     "name" : "id",
     "type" : "int"

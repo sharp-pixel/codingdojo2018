@@ -1,11 +1,9 @@
 package com.thalesgroup.datastorage.dojo;
 
-import javafx.util.Duration;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.MockConsumer;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.TopicPartition;
-import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -15,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.*;
 
 public class NameConsumerTest {
 
@@ -41,7 +38,7 @@ public class NameConsumerTest {
         nameConsumer.start();
         // assertEquals(3, nameConsumer.getUsers().size());
         await().atMost(1, TimeUnit.SECONDS).until(() ->
-          nameConsumer.getUsers().size(), equalTo(3)
+                nameConsumer.getUsers().size(), equalTo(3)
         );
         nameConsumer.stop();
 

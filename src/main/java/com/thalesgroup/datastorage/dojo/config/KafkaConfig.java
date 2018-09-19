@@ -36,7 +36,5 @@ public class KafkaConfig {
         props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG,
                 "read_committed");
         return props;
-
     }
-
 }

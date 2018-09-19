@@ -1,9 +1,7 @@
 package com.thalesgroup.datastorage.dojo;
 
-import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.KafkaException;
 
 import java.io.Closeable;
@@ -23,11 +21,9 @@ public class UserGenerator implements Closeable {
             producer.beginTransaction();
             for (int i = 0; i < n; i++) {
                 ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>(topicName, i + "", NameGenerator.getName());
-                producer.send(producerRecord, new Callback() {
-                    public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                        if (e != null) {
-                            System.out.println("Error " + recordMetadata.topic());
-                        }
+                producer.send(producerRecord, (recordMetadata, e) -> {
+                    if (e != null) {
+                        System.out.println("Error " + recordMetadata.topic());
                     }
                 });
             }

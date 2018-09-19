@@ -1,12 +1,13 @@
 package com.thalesgroup.datastorage.dojo;
 
 import org.apache.kafka.clients.producer.MockProducer;
+import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 public class UserGeneratorTest {
 
-    @org.junit.Test
+    @Test
     public void generateTest() {
         MockProducer<String, String> mockProducer = new MockProducer<String, String>();
 

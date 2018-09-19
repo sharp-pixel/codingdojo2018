@@ -17,6 +17,7 @@ public class NameConsumer implements Closeable, Runnable {
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     private Map<String, String> users;
+
     public NameConsumer(Consumer<String, String> consumer) {
         this.consumer = consumer;
         users = new HashMap<>();
@@ -25,7 +26,7 @@ public class NameConsumer implements Closeable, Runnable {
     public void consumeUsers() {
         running.set(true);
         try {
-            while(running.get()) {
+            while (running.get()) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
 
                 for (ConsumerRecord<String, String> record : records) {
@@ -34,7 +35,7 @@ public class NameConsumer implements Closeable, Runnable {
 
                 consumer.commitAsync();
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("Erreur " + e.getMessage());
         } finally {
             try {

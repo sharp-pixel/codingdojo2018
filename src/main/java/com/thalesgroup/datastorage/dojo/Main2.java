@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 
 public class Main2 {
     public static void main(String[] args) {
-        KafkaProducer<String, String> kp = new KafkaProducer<String, String>(KafkaConfig.getProducerConfig("messageGenerator"));
+        KafkaProducer<String, String> kp = new KafkaProducer<>(KafkaConfig.getProducerConfig("messageGenerator"));
         MessageGenerator ug = new MessageGenerator(kp);
         Long timeBefore = System.nanoTime();
         ug.generate(1000);
