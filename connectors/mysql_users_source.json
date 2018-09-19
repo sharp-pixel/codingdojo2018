@@ -1,0 +1,23 @@
+{
+  "name": "mysql_users_source",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+
+    "key.converter": "io.confluent.connect.avro.AvroConverter",
+    "key.converter.schema.registry.url": "http://schema-registry:8081",
+
+    "value.converter": "io.confluent.connect.avro.AvroConverter",
+    "value.converter.schema.registry.url": "http://schema-registry:8081",
+
+    "connection.url": "jdbc:mysql://mysql:3306/dojo?user=dojo&password=dojo2018",
+
+    "table.whitelist": "users",
+
+    "mode": "timestamp",
+    "timestamp.column.name": "updated_at",
+
+    "validate.non.null": "false",
+
+    "topic.prefix": "mysql-"
+  }
+}
