@@ -2,6 +2,7 @@ package com.thalesgroup.datastorage.dojo;
 
 import com.thalesgroup.datastorage.dojo.listeners.ConsoleGlobalRestoreListener;
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde;
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -11,6 +12,7 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.processor.LogAndSkipOnInvalidTimestamp;
 import org.apache.kafka.streams.state.KeyValueStore;
@@ -20,7 +22,7 @@ import java.util.Properties;
 
 public class StreamsApp {
     public static void main(String[] args) {
-        Properties props = createProperties();
+        Properties props = createProperties(false);
         Topology topology = createTopology();
         final KafkaStreams streams = new KafkaStreams(topology, props);
 
@@ -37,7 +39,7 @@ public class StreamsApp {
         streams.start();
     }
 
-    static Properties createProperties() {
+    static Properties createProperties(boolean specificAvro) {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "PLAINTEXT://localhost:9092");
@@ -45,8 +47,11 @@ public class StreamsApp {
 
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class);
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.StringSerde.class);
-        // props.put("schema.registry.url", "http://localhost:8081");
-        // props.put("specific.avro.reader", "true");
+        props.put("schema.registry.url", "http://localhost:8081");
+
+        if (specificAvro) {
+            props.put("specific.avro.reader", "true");
+        }
 
         props.put(StreamsConfig.consumerPrefix(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG), "earliest");
         props.put(StreamsConfig.producerPrefix(ProducerConfig.RETRIES_CONFIG), Integer.MAX_VALUE);
@@ -54,7 +59,7 @@ public class StreamsApp {
         props.put(StreamsConfig.REQUEST_TIMEOUT_MS_CONFIG, 305000);
         props.put(StreamsConfig.consumerPrefix(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG), Integer.MAX_VALUE);
 
-        //props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
+        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
 
         return props;
     }
@@ -64,16 +69,14 @@ public class StreamsApp {
         KStream<String, String> eventsStream = builder.stream("events");
         KTable<String, String> usersKTable = builder.table("users", Materialized.<String, String, KeyValueStore<Bytes, byte[]>>as("USERS").withLoggingDisabled());
 
-        eventsStream.leftJoin(usersKTable, new ValueJoiner<String, String, Object>() {
-            @Override
-            public Object apply(String event, String user) {
-                if (user == null) {
-                    System.out.println("User not found : " + event);
-                    return null;
-                }
-                return "User " + user + " sent " + event;
+        eventsStream.leftJoin(usersKTable, (ValueJoiner<String, String, Object>) (event, user) -> {
+            if (user == null) {
+                System.out.println("User not found : " + event);
+                return null;
             }
+            return "User " + user + " sent " + event;
         }).filter((key, value) -> value != null).to("output");
+
         return builder.build();
     }
 
@@ -98,6 +101,32 @@ public class StreamsApp {
             }
             return "User " + users.get("name").toString() + " sent " + event;
         }).filter((key, value) -> value != null).to("output");
+
+        return builder.build();
+    }
+
+    static Topology createTopologyAvroSpecific() {
+        final StreamsBuilder builder = new StreamsBuilder();
+
+        SpecificAvroSerde<Users> specificAvroSerde = new SpecificAvroSerde<>();
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put("schema.registry.url", "http://localhost:8081");
+        specificAvroSerde.configure(properties, false);
+
+        Consumed<String, Users> consumed = Consumed.with(new Serdes.StringSerde(), specificAvroSerde, new LogAndSkipOnInvalidTimestamp(), Topology.AutoOffsetReset.EARLIEST);
+        KStream<String, Users> usersKStream = builder.stream("mysql-users", consumed);
+        KStream<String, Users> usersKStreamKey = usersKStream.selectKey((s, users) -> users.get("id").toString());
+        KTable<String, Users> usersKTable = usersKStreamKey.groupByKey(Serialized.with(new Serdes.StringSerde(), specificAvroSerde)).reduce((users, v1) -> users, Materialized.<String, Users, KeyValueStore<Bytes, byte[]>>as("USERS").withValueSerde(specificAvroSerde));
+
+        KStream<String, String> eventsStream = builder.stream("events");
+        eventsStream.leftJoin(usersKTable, (ValueJoiner<String, Users, Object>) (event, users) -> {
+            if (users == null) {
+                System.out.println("User not found : " + event);
+                return null;
+            }
+            return "User " + users.get("name").toString() + " sent " + event;
+        }).filter((key, value) -> value != null).to("output");
+
         return builder.build();
     }
 }
