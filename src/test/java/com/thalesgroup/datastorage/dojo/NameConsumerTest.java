@@ -23,16 +23,16 @@ public class NameConsumerTest {
     public void consumeUsers() {
         MockConsumer<String, String> mockConsumer = new MockConsumer<>(OffsetResetStrategy.EARLIEST);
 
-        TopicPartition topicPartition = new TopicPartition("users", 0);
+        TopicPartition topicPartition = new TopicPartition("Users", 0);
         mockConsumer.assign(Collections.singletonList(topicPartition));
 
         Map<TopicPartition, Long> topics = new HashMap<>();
         topics.put(topicPartition, 0L);
         mockConsumer.updateBeginningOffsets(topics);
 
-        ConsumerRecord<String, String> rec1 = new ConsumerRecord<>("users", 0, 0L, "0", NameGenerator.getName());
-        ConsumerRecord<String, String> rec2 = new ConsumerRecord<>("users", 0, 1L, "1", NameGenerator.getName());
-        ConsumerRecord<String, String> rec3 = new ConsumerRecord<>("users", 0, 2L, "2", NameGenerator.getName());
+        ConsumerRecord<String, String> rec1 = new ConsumerRecord<>("Users", 0, 0L, "0", NameGenerator.getName());
+        ConsumerRecord<String, String> rec2 = new ConsumerRecord<>("Users", 0, 1L, "1", NameGenerator.getName());
+        ConsumerRecord<String, String> rec3 = new ConsumerRecord<>("Users", 0, 2L, "2", NameGenerator.getName());
         mockConsumer.addRecord(rec1);
         mockConsumer.addRecord(rec2);
         mockConsumer.addRecord(rec3);

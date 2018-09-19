@@ -29,9 +29,9 @@ public class StreamsAppTest {
         TopologyTestDriver driver = new TopologyTestDriver(topology, props);
 
         ConsumerRecordFactory<String, String> eventsFactory = new ConsumerRecordFactory<>("events", new StringSerializer(), new StringSerializer());
-        ConsumerRecordFactory<String, String> usersFactory = new ConsumerRecordFactory<>("users", new StringSerializer(), new StringSerializer());
+        ConsumerRecordFactory<String, String> usersFactory = new ConsumerRecordFactory<>("Users", new StringSerializer(), new StringSerializer());
 
-        driver.pipeInput(usersFactory.create("users", "key_0", "user"));
+        driver.pipeInput(usersFactory.create("Users", "key_0", "user"));
         driver.pipeInput(eventsFactory.create("events", "key_0", "event"));
 
         ProducerRecord<String, String> producerRecord = driver.readOutput("output",new StringDeserializer(), new StringDeserializer());
