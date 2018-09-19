@@ -22,8 +22,8 @@ import java.util.Properties;
 
 public class StreamsApp {
     public static void main(String[] args) {
-        Properties props = createProperties(false);
-        Topology topology = createTopology();
+        Properties props = createProperties(true);
+        Topology topology = createTopologyAvroSpecific();
         final KafkaStreams streams = new KafkaStreams(topology, props);
 
         System.out.println(topology.describe().toString());
