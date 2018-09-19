@@ -1,5 +1,3 @@
-package com.thalesgroup.datastorage.dojo;
-
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -12,8 +10,6 @@ import org.apache.kafka.streams.test.OutputVerifier;
 import org.junit.Test;
 
 import java.util.Properties;
-
-import static org.junit.Assert.*;
 
 public class StreamsAppTest {
 

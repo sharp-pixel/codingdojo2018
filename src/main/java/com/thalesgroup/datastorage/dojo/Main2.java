@@ -7,12 +7,12 @@ public class Main2 {
     public static void main(String[] args) {
         KafkaProducer<String, String> kp = new KafkaProducer<>(KafkaConfig.getProducerConfig("messageGenerator"));
         MessageGenerator ug = new MessageGenerator(kp);
-        Long timeBefore = System.nanoTime();
-        ug.generate(1000);
-        Long timeAfter = System.nanoTime();
+        long timeBefore = System.nanoTime();
+        ug.generate(10);
+        long timeAfter = System.nanoTime();
 
-        Long timePassed = timeAfter - timeBefore;
-        Long timePassedMs = timePassed/1000000;
+        long timePassed = timeAfter - timeBefore;
+        long timePassedMs = timePassed/1000000;
         System.out.println("Generation took " + timePassedMs);
     }
 }
