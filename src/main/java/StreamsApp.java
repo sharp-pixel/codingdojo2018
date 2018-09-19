@@ -12,12 +12,18 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.errors.DefaultProductionExceptionHandler;
+import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
 import org.apache.kafka.streams.kstream.*;
 import org.apache.kafka.streams.processor.LogAndSkipOnInvalidTimestamp;
 import org.apache.kafka.streams.state.KeyValueStore;
 
 import java.util.HashMap;
 import java.util.Properties;
+
+// NOTE
+// This class is not in a package because the generated Avro class is not either.
+// This is due to the JDBC connector not creating a namespace for the record.
 
 @Slf4j
 public class StreamsApp {
@@ -61,8 +67,8 @@ public class StreamsApp {
         props.put(StreamsConfig.REQUEST_TIMEOUT_MS_CONFIG, 305000);
         props.put(StreamsConfig.consumerPrefix(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG), Integer.MAX_VALUE);
 
-//        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
-//        props.put(StreamsConfig.DEFAULT_PRODUCTION_EXCEPTION_HANDLER_CLASS_CONFIG, DefaultProductionExceptionHandler.class);
+        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndContinueExceptionHandler.class);
+        props.put(StreamsConfig.DEFAULT_PRODUCTION_EXCEPTION_HANDLER_CLASS_CONFIG, DefaultProductionExceptionHandler.class);
 
         return props;
     }
@@ -94,7 +100,7 @@ public class StreamsApp {
         Consumed<String, GenericRecord> consumed = Consumed.with(new Serdes.StringSerde(), genericAvroSerde, new LogAndSkipOnInvalidTimestamp(), Topology.AutoOffsetReset.EARLIEST);
         KStream<String, GenericRecord> usersKStream = builder.stream("mysql-users", consumed);
         KStream<String, GenericRecord> usersKStreamKey = usersKStream.selectKey((s, users) -> users.get("id").toString());
-        KTable<String, GenericRecord> usersKTable = usersKStreamKey.groupByKey(Serialized.with(new Serdes.StringSerde(), genericAvroSerde)).reduce((users, v1) -> users, Materialized.<String, GenericRecord, KeyValueStore<Bytes, byte[]>>as("USERS").withValueSerde(genericAvroSerde));
+        KTable<String, GenericRecord> usersKTable = usersKStreamKey.groupByKey(Serialized.with(new Serdes.StringSerde(), genericAvroSerde)).reduce((users, v1) -> users, Materialized.<String, GenericRecord, KeyValueStore<Bytes, byte[]>>as("MYSQL-USERS").withValueSerde(genericAvroSerde));
 
         KStream<String, String> eventsStream = builder.stream("events", Consumed.with(new Serdes.StringSerde(), new Serdes.StringSerde(), new LogAndSkipOnInvalidTimestamp(), Topology.AutoOffsetReset.EARLIEST));
 
@@ -119,8 +125,8 @@ public class StreamsApp {
 
         Consumed<String, users> consumed = Consumed.with(new Serdes.StringSerde(), specificAvroSerde, new LogAndSkipOnInvalidTimestamp(), Topology.AutoOffsetReset.EARLIEST);
         KStream<String, users> usersKStream = builder.stream("mysql-users", consumed);
-        KStream<String, users> usersKStreamKey = usersKStream.selectKey((s, users) -> users.get("id").toString());
-        KTable<String, users> usersKTable = usersKStreamKey.groupByKey(Serialized.with(new Serdes.StringSerde(), specificAvroSerde)).reduce((users, v1) -> users, Materialized.<String, users, KeyValueStore<Bytes, byte[]>>as("USERS").withValueSerde(specificAvroSerde));
+        KStream<String, users> usersKStreamKey = usersKStream.selectKey((s, users) -> users.getId().toString());
+        KTable<String, users> usersKTable = usersKStreamKey.groupByKey(Serialized.with(new Serdes.StringSerde(), specificAvroSerde)).reduce((users, v1) -> users, Materialized.<String, users, KeyValueStore<Bytes, byte[]>>as("MYSQL-USERS").withValueSerde(specificAvroSerde));
 
         KStream<String, String> eventsStream = builder.stream("events");
         eventsStream.leftJoin(usersKTable, (ValueJoiner<String, users, Object>) (event, user) -> {
@@ -128,7 +134,7 @@ public class StreamsApp {
                 System.out.println("User not found : " + event);
                 return null;
             }
-            return "User " + user.get("name").toString() + " sent " + event;
+            return "User " + user.getName() + " sent " + event;
         }).filter((key, value) -> value != null).to("output");
 
         return builder.build();
