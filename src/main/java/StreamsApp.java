@@ -28,8 +28,8 @@ import java.util.Properties;
 @Slf4j
 public class StreamsApp {
     public static void main(String[] args) {
-        Properties props = createProperties(true);
-        Topology topology = createTopologyAvroSpecific();
+        Properties props = createProperties(false);
+        Topology topology = createTopology2();
         final KafkaStreams streams = new KafkaStreams(topology, props);
 
         System.out.println(topology.describe().toString());
@@ -76,9 +76,26 @@ public class StreamsApp {
     static Topology createTopology() {
         final StreamsBuilder builder = new StreamsBuilder();
         KStream<String, String> eventsStream = builder.stream("events");
-        KTable<String, String> usersKTable = builder.table("users", Materialized.<String, String, KeyValueStore<Bytes, byte[]>>as("USERS").withLoggingDisabled());
+        KTable<String, String> usersKTable = builder.table("users", Materialized.as("USERS"));
 
         eventsStream.leftJoin(usersKTable, (ValueJoiner<String, String, Object>) (event, user) -> {
+            if (user == null) {
+                System.out.println("User not found : " + event);
+                return null;
+            }
+            return "User " + user + " sent " + event;
+        }).filter((key, value) -> value != null).to("output");
+
+        return builder.build();
+    }
+
+    static Topology createTopology2() {
+        final StreamsBuilder builder = new StreamsBuilder();
+        KStream<String, String> eventStream = builder.stream("events");
+        KStream<String, String> userStream = builder.stream("users");
+        KTable<String, String> userTable = userStream.groupByKey().reduce((u, r) -> u, Materialized.as("USERS"));
+
+        eventStream.leftJoin(userTable, (ValueJoiner<String, String, Object>) (event, user) -> {
             if (user == null) {
                 System.out.println("User not found : " + event);
                 return null;

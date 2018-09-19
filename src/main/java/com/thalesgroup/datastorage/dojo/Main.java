@@ -8,7 +8,7 @@ public class Main {
         KafkaProducer<String, String> kp = new KafkaProducer<>(KafkaConfig.getProducerConfig("userGenerator"));
         UserGenerator ug = new UserGenerator(kp);
         long timeBefore = System.nanoTime();
-        ug.generate(10000000);
+        ug.generate(100000);
         long timeAfter = System.nanoTime();
 
         long timePassed = timeAfter - timeBefore;
