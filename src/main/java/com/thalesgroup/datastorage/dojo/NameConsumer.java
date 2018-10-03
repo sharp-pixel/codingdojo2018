@@ -23,7 +23,7 @@ public class NameConsumer implements Closeable, Runnable {
         users = new HashMap<>();
     }
 
-    public void consumeUsers() {
+    void consumeUsers() {
         running.set(true);
         try {
             while (running.get()) {
