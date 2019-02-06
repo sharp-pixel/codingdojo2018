@@ -48,7 +48,9 @@ public class NameConsumer implements Closeable, Runnable {
 
     @Override
     public void close() throws IOException {
-        consumer.close();
+        if (null != consumer) {
+            consumer.close();
+        }
     }
 
     public void setRunning(boolean running) {

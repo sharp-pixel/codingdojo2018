@@ -8,6 +8,16 @@
     <artifactId>Dojo2018</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <confluent.version>5.1.0</confluent.version>
+        <kafka.version>2.1.0-cp1</kafka.version>
+        <lombok.version>1.18.4</lombok.version>
+    </properties>
+
     <repositories>
         <repository>
             <id>confluent</id>
@@ -37,7 +47,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.2</version>
+            <version>${lombok.version}</version>
         </dependency>
 
         <dependency>
@@ -103,16 +113,20 @@
             <version>3.1.2</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
 
-    <properties>
-        <java.version>1.8</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <confluent.version>5.0.0</confluent.version>
-        <kafka.version>2.0.0-cp1</kafka.version>
-    </properties>
+        <!--For color logs -->
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi-native</artifactId>
+            <version>1.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.17.1</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <pluginManagement>
@@ -134,7 +148,7 @@
                 <plugin>
                     <groupId>io.confluent</groupId>
                     <artifactId>kafka-schema-registry-maven-plugin</artifactId>
-                    <version>5.0.0</version>
+                    <version>${confluent.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

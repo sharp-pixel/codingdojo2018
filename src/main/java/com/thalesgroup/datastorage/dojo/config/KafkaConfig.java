@@ -2,6 +2,7 @@ package com.thalesgroup.datastorage.dojo.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -17,10 +18,16 @@ public class KafkaConfig {
                 StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 StringSerializer.class);
-        props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG,
-                transactionalId);
-        return props;
+//        props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG,
+//                transactionalId);
 
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
+        props.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+        props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 305000);
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 305000);
+        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, Integer.MAX_VALUE);
+
+        return props;
     }
 
     public static Properties getConsumerConfig() {

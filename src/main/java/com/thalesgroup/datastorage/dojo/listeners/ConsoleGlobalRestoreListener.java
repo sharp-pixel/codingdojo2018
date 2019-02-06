@@ -13,8 +13,8 @@ public class ConsoleGlobalRestoreListener implements StateRestoreListener {
                                final long startingOffset,
                                final long endingOffset) {
 
-        System.out.println(String.format("Started restoration of %s partition %s", storeName, topicPartition.partition()));
-        System.out.println(String.format(" total records to be restored %s", endingOffset - startingOffset));
+        log.trace("Started restoration of {} partition {}", storeName, topicPartition.partition());
+        log.trace(" total records to be restored {}", endingOffset - startingOffset);
     }
 
     @Override
@@ -24,7 +24,6 @@ public class ConsoleGlobalRestoreListener implements StateRestoreListener {
                                 final long numRestored) {
 
 //        System.out.println(String.format("Restored batch %s for %s partition %s", numRestored, storeName, topicPartition.partition()));
-
     }
 
     @Override
@@ -32,6 +31,6 @@ public class ConsoleGlobalRestoreListener implements StateRestoreListener {
                              final String storeName,
                              final long totalRestored) {
 
-        System.out.println(String.format("Restoration complete for %s partition %s", storeName, topicPartition.partition()));
+        log.trace("Restoration complete for {} partition {}", storeName, topicPartition.partition());
     }
 }
