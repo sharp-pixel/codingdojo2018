@@ -147,7 +147,7 @@ public class StreamsApp {
 
         Consumed<String, users> consumed = Consumed.with(new Serdes.StringSerde(), specificAvroSerde, new LogAndSkipOnInvalidTimestamp(), Topology.AutoOffsetReset.EARLIEST);
         KStream<String, users> usersKStream = builder.stream("mysql-users", consumed);
-        KStream<String, users> usersKStreamKey = usersKStream.selectKey((s, users) -> users.getId().toString());
+        KStream<String, users> usersKStreamKey = usersKStream.selectKey((s, users) -> String.valueOf(users.getId()));
         KTable<String, users> usersKTable = usersKStreamKey.groupByKey(Grouped.with(new Serdes.StringSerde(), specificAvroSerde)).reduce((users, v1) -> users, Materialized.<String, users, KeyValueStore<Bytes, byte[]>>as("MYSQL-USERS").withValueSerde(specificAvroSerde));
 
         KStream<String, String> eventsStream = builder.stream("events");
