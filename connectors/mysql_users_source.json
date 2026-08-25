@@ -11,7 +11,7 @@
 
     "connection.url": "jdbc:mysql://mysql:3306/dojo?user=dojo&password=dojo2018",
 
-    "table.whitelist": "users",
+    "table.include.list": "users",
 
     "mode": "timestamp",
     "timestamp.column.name": "updated_at",

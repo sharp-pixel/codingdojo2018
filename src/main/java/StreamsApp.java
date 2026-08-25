@@ -1,5 +1,5 @@
 import com.thalesgroup.datastorage.dojo.listeners.ConsoleGlobalRestoreListener;
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
@@ -60,7 +60,7 @@ public class StreamsApp {
 
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.StringSerde.class);
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.StringSerde.class);
-        props.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
+        props.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
 
         if (specificAvro) {
             props.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, "true");
@@ -116,7 +116,7 @@ public class StreamsApp {
 
         GenericAvroSerde genericAvroSerde = new GenericAvroSerde();
         HashMap<String, String> properties = new HashMap<>();
-        properties.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
+        properties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
         genericAvroSerde.configure(properties, false);
 
         Consumed<String, GenericRecord> consumed = Consumed.with(new Serdes.StringSerde(), genericAvroSerde, new LogAndSkipOnInvalidTimestamp(), Topology.AutoOffsetReset.EARLIEST);
@@ -142,7 +142,7 @@ public class StreamsApp {
 
         SpecificAvroSerde<users> specificAvroSerde = new SpecificAvroSerde<>();
         HashMap<String, String> properties = new HashMap<>();
-        properties.put(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
+        properties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
         specificAvroSerde.configure(properties, false);
 
         Consumed<String, users> consumed = Consumed.with(new Serdes.StringSerde(), specificAvroSerde, new LogAndSkipOnInvalidTimestamp(), Topology.AutoOffsetReset.EARLIEST);

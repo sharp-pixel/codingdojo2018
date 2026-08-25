@@ -10,7 +10,7 @@ public class UserGeneratorTest {
 
     @Test
     public void generateTest() {
-        MockProducer<String, String> mockProducer = new MockProducer<>(true, new StringSerializer(), new StringSerializer());
+        MockProducer<String, String> mockProducer = new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
 
         UserGenerator ug = new UserGenerator(mockProducer);
         ug.generate(5);
