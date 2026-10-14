@@ -13,16 +13,16 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <confluent.version>8.3.1</confluent.version>
-        <kafka.version>8.3.1-ccs</kafka.version>
-        <lombok.version>1.18.46</lombok.version>
-        <logback.version>1.5.38</logback.version>
-        <logstash.logback.encoder.version>8.1</logstash.logback.encoder.version>
-        <joda-time.version>2.14.2</joda-time.version>
-        <jansi.version>2.4.2</jansi.version>
+        <confluent.version>8.3.2</confluent.version>
+        <kafka.version>${confluent.version}-ccs</kafka.version>
+        <lombok.version>1.18.48</lombok.version>
+        <logback.version>1.6.5</logback.version>
+        <logstash.logback.encoder.version>9.0</logstash.logback.encoder.version>
+        <joda-time.version>2.15.0</joda-time.version>
+        <jansi.version>2.4.3</jansi.version>
         <junit.version>4.13.2</junit.version>
         <awaitility.version>4.3.0</awaitility.version>
-        <avro.version>1.12.1</avro.version>
+        <avro.version>1.12.2</avro.version>
     </properties>
 
     <repositories>
@@ -86,6 +86,11 @@
             <version>${confluent.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>${avro.version}</version>
+        </dependency>
+        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda-time.version}</version>
@@ -147,7 +152,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.16.0</version>
                 <configuration>
                     <release>${java.version}</release>
                     <annotationProcessorPaths>
