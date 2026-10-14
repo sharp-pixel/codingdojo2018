@@ -5,6 +5,7 @@ import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.util.ClassSecurityValidator;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -28,6 +29,12 @@ import java.util.Properties;
 
 @Slf4j
 public class StreamsApp {
+
+    static {
+        // Avro 1.12.2 requires generated records to be explicitly trusted.
+        ClassSecurityValidator.setGlobal(ClassSecurityValidator.composite(
+                ClassSecurityValidator.getGlobal(), type -> type == users.class));
+    }
 
     public static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
     public static final String BOOTSTRAP_SERVERS = "PLAINTEXT://localhost:9092";
@@ -140,10 +147,7 @@ public class StreamsApp {
     static Topology createTopologyAvroSpecific() {
         final StreamsBuilder builder = new StreamsBuilder();
 
-        SpecificAvroSerde<users> specificAvroSerde = new SpecificAvroSerde<>();
-        HashMap<String, String> properties = new HashMap<>();
-        properties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, SCHEMA_REGISTRY_URL);
-        specificAvroSerde.configure(properties, false);
+        SpecificAvroSerde<users> specificAvroSerde = createSpecificAvroSerde(SCHEMA_REGISTRY_URL);
 
         Consumed<String, users> consumed = Consumed.with(new Serdes.StringSerde(), specificAvroSerde, new LogAndSkipOnInvalidTimestamp(), Topology.AutoOffsetReset.EARLIEST);
         KStream<String, users> usersKStream = builder.stream("mysql-users", consumed);
@@ -160,5 +164,13 @@ public class StreamsApp {
         }).filter((key, value) -> value != null).to("output");
 
         return builder.build();
+    }
+
+    static SpecificAvroSerde<users> createSpecificAvroSerde(String schemaRegistryUrl) {
+        SpecificAvroSerde<users> serde = new SpecificAvroSerde<>();
+        HashMap<String, String> properties = new HashMap<>();
+        properties.put(AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+        serde.configure(properties, false);
+        return serde;
     }
 }
