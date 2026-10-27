@@ -7,7 +7,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.util.LogbackMDCAdapter;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.core.status.Status;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayInputStream;
@@ -16,7 +16,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LoggingConfigurationTest {
     @Test
@@ -36,7 +36,7 @@ public class LoggingConfigurationTest {
     private String logMessage(String appenderName) throws Exception {
         String xml;
         try (InputStream resource = getClass().getResourceAsStream("/logback.xml")) {
-            assertNotNull("Application logging configuration must be present", resource);
+            assertNotNull(resource, "Application logging configuration must be present");
             xml = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
         }
         // Exercise the optional JSON appender using the application's real configuration.
@@ -58,7 +58,7 @@ public class LoggingConfigurationTest {
             logger.error("dependency-upgrade-smoke");
 
             for (Status status : context.getStatusManager().getCopyOfStatusList()) {
-                assertNotEquals(status.toString(), Status.ERROR, status.getLevel());
+                assertNotEquals(Status.ERROR, status.getLevel(), status.toString());
             }
             return output.toString(StandardCharsets.UTF_8);
         } finally {

@@ -13,18 +13,18 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <confluent.version>8.3.2</confluent.version>
+        <confluent.version>8.4.0</confluent.version>
         <kafka.version>${confluent.version}-ccs</kafka.version>
         <lombok.version>1.18.48</lombok.version>
-        <logback.version>1.6.5</logback.version>
+        <logback.version>1.6.6</logback.version>
         <logstash.logback.encoder.version>9.0</logstash.logback.encoder.version>
         <joda-time.version>2.15.0</joda-time.version>
-        <jansi.version>2.4.3</jansi.version>
-        <junit.version>4.13.2</junit.version>
+        <jansi.version>4.4.8</jansi.version>
+        <junit.version>6.1.3</junit.version>
         <awaitility.version>4.3.0</awaitility.version>
         <avro.version>1.12.2</avro.version>
-        <jackson2.version>2.22.3</jackson2.version>
-        <jackson3.version>3.2.3</jackson3.version>
+        <jackson2.version>2.22.4</jackson2.version>
+        <jackson3.version>3.2.4</jackson3.version>
         <commons-lang3.version>3.21.0</commons-lang3.version>
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-io.version>2.22.0</commons-io.version>
@@ -34,6 +34,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- Kafka/Avro use Jackson 2; Logstash Encoder uses Jackson 3. -->
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
@@ -156,9 +163,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -170,8 +176,8 @@
 
         <!--For color logs -->
         <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
+            <groupId>org.jline</groupId>
+            <artifactId>jansi-core</artifactId>
             <version>${jansi.version}</version>
         </dependency>
     </dependencies>
@@ -202,6 +208,16 @@
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <!-- Jansi writes native console output; keep test events on a separate channel. -->
+                    <forkNode implementation="org.apache.maven.plugin.surefire.extensions.SurefireForkNodeFactory"/>
+                    <argLine>--enable-native-access=ALL-UNNAMED</argLine>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
